@@ -45,36 +45,53 @@ res <- res[!is.na(res$padj),]
 res$IV <- iv[match(rownames(res), iv$Name), "IV"]
 res$IV25 <- iv[match(rownames(res), iv$Name), "IV25"]
 
-# plot histogram
-p2 <- ggplot(as.data.frame(res[res$padj < 0.01, ])) + geom_histogram(aes(x=1-IV25)) + background_grid() + labs(x = "reference completeness", title = "Number of DE transcripts that are unreliable \nunder the reference completeness parameter")
+# DE detection on gene level
+gene_trans_map <- read.table(paste0(folder, "../gencode.v26.Gene_Trans_Map.txt", sep=""), header=F, sep="\t")
+colnames(gene_trans_map) <- c("GENEID", "TXNAME")
+gene_trans_map <- gene_trans_map[, c("TXNAME", "GENEID")]
+txi <- tximport(files, type = "salmon", tx2gene = gene_trans_map)
+dds_gene <- DESeqDataSetFromTximport(txi, meta, ~treatment)
+dds_gene <- DESeq(dds_gene)
+res_gene <- results(dds_gene, alpha=0.01)
+res_gene <- res_gene[!is.na(res_gene$padj),]
+print(sum(res_gene$padj < 0.01, na.rm=TRUE))
+
+related_trans <- res[rownames(res) %in% gene_trans_map[gene_trans_map$GENEID %in% rownames(res_gene[res_gene$padj < 0.01, ]), "TXNAME"], ]
+print(nrow(related_trans[related_trans$padj < 0.01, ]))
+print(related_trans[related_trans$padj < 0.01, "IV25"])
 
 # draw example curve
+large_font <- 18
+
 t <- read.table(paste0(folder, "IValue_curve_example.txt", sep=""), header=F, sep="\t")
 colnames(t) <- c("Name", "Group", "Sample", "reference_proportion", "lb", "ub")
 df <- data.frame(Name=rep(t$Name, 2), Group=rep(t$Group, 2), Sample=rep(t$Sample, 2), reference_proportion=rep(t$reference_proportion, 2), Expression=c(t$lb, t$ub), Type=c(rep("lower bound", nrow(t)), rep("upper bound", nrow(t))))
 
-p3 <- ggplot(df[df$Name == "ENST00000010404.6" & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000010404.6" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000010404.6" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == "ENST00000010404.6" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000010404.6" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000010404.6" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == "ENST00000010404.6" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.0559912296325953, color="black") + geom_vline(xintercept=1-0.109375733685513, color="red") + background_grid() + labs(title = "Ranges of optima of ENST00000010404.6", x = "reference completeness", y = "normalized abundance") +
-	theme(legend.title=element_blank())
-p4 <- ggplot(df[df$Name == "ENST00000396832.5" & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000396832.5" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000396832.5" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == "ENST00000396832.5" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000396832.5" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000396832.5" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == "ENST00000396832.5" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.0426357585576571, color="black") + geom_vline(xintercept=1-0.0641238355024918, color="red") + background_grid() + labs(title = "Ranges of optima of ENST00000396832.5", x = "reference completeness", y = "normalized abundance") +
-	theme(legend.title=element_blank())
-p5 <- ggplot(df[df$Name == "ENST00000377482.9" & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000377482.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000377482.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == "ENST00000377482.9" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000377482.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000377482.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == "ENST00000377482.9" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.655461069604338, color="black") + geom_vline(xintercept=1-0.694297745102267, color="red") + background_grid() + labs(title = "Ranges of optima of ENST00000377482.9", x = "reference completeness", y = "normalized abundance") +
-	theme(legend.title=element_blank())
-p6 <- ggplot(df[df$Name == "ENST00000337393.9" & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000337393.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000337393.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == "ENST00000337393.9" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == "ENST00000337393.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == "ENST00000337393.9" & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == "ENST00000337393.9" & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	background_grid() + labs(title = "Ranges of optima of ENST00000337393.9", x = "reference completeness", y = "normalized abundance") +
-	theme(legend.title=element_blank())
+tname <- "ENST00000509980.5"
+p3 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
+	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
+	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
+	geom_vline(xintercept=1-0.0423675453975355, color="black") + geom_vline(xintercept=1-0.0954330296051542, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
-ptmp <- plot_grid(p3 + theme(legend.position="none"), p4 + theme(legend.position="none"), p5 + theme(legend.position="none"), p6 + theme(legend.position="none"), p2, nrow=2, labels="AUTO", label_x=0.05)
+tname <- "ENST00000308394.8"
+p4 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
+	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
+	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
+	geom_vline(xintercept=1-0.0356286092384825, color="black") + geom_vline(xintercept=1-0.0695868455633252, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
+
+tname <- "ENST00000443868.6"
+p5 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
+	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
+	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
+	geom_vline(xintercept=1-0.0107085707561145, color="black") + geom_vline(xintercept=1-0.0180927714007716, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
+
+p2 <- ggplot(as.data.frame(res[res$padj < 0.01, ])) + geom_histogram(aes(x=1-IV25)) + theme_cowplot() + labs(x = "reference completeness", title = "Number of DE transcripts that are unreliable \nunder the reference completeness parameter") + 
+	theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
+
+ptmp <- plot_grid(p3 + theme(legend.position="none"), p4 + theme(legend.position="none"), p5 + theme(legend.position="none"), p6 + theme(legend.position="none"), p2, nrow=2, labels="AUTO", label_x=0.05, label_size=large_font)
 p <- plot_grid(ptmp, get_legend(p3 + theme(legend.position="bottom")), nrow=2, rel_heights = c(2, 0.1))
-save_plot(paste0(folder, "IValue.pdf", sep=""), p, base_aspect_ratio = 1.6, base_height=9)
+save_plot(paste0(folder, "IValue_mcf10.pdf", sep=""), p, base_aspect_ratio = 1.85, base_height=9)
 

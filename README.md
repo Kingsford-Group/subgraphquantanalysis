@@ -20,5 +20,21 @@ The SRA accession of three datasets can be found in `data/Metadata_*.txt`. The f
 ./script/metarun.sh <output folder>
 ```
 
-
 # Evaluating the degree of expression estimation uncertainty in Human Body Map dataset
+Using Human Body Map dataset, we evaluate the number of transcripts for which the uncertainty in unidentifiable expression estimates is so large that the ranking of expression between the transcript and its sibling isoforms cannot be determined. The following script will generate a figure that reproduces the figure in manuscript. The figure is named `percentage_flipped_transcripts.pdf` and located in the Human Body Map quantification directory.
+```
+python3 scripts/evaluate_nonidentifiable_degree.py <path to Human Body Map quantification output> <path to data downloading output>
+```
+
+# Evaluating the reliability of differentially expressed (DE) transcripts by uncertainty of expression estimates
+We detect differentially expressed (DE) transcripts on a MCF10 and a T-cell dataset using Salmon quantification, tximport, and DESeq2. We then evaluate the reliability of the detected DE transcripts by comparing the ranges of uncertain expression estimates between DE groups. The following command will run DE detection and reproduce the figure for MCF10 dataset. The generated figure will be located in the MCF10 quantification folder under name `IValue_mcf10.pdf`.
+```
+python scripts/ComputeIValue.py <path to data downloading folder>
+Rscript scripts/draw_figure_mcf10.R <path to data downloading folder>
+```
+
+The following command will run DE detection and reproduce the figure for T-cell dataset. The generated figure will be located in the T-cell quantification folder under name `IValue_immune29.pdf`.
+```
+python scripts/ComputeIValue.py <path to data downloading folder>
+Rscript scripts/draw_figure_immune29.R <path to data downloading folder>
+```
