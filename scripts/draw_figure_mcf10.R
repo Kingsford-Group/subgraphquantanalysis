@@ -68,24 +68,47 @@ colnames(t) <- c("Name", "Group", "Sample", "reference_proportion", "lb", "ub")
 df <- data.frame(Name=rep(t$Name, 2), Group=rep(t$Group, 2), Sample=rep(t$Sample, 2), reference_proportion=rep(t$reference_proportion, 2), Expression=c(t$lb, t$ub), Type=c(rep("lower bound", nrow(t)), rep("upper bound", nrow(t))))
 
 tname <- "ENST00000509980.5"
-p3 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.0423675453975355, color="black") + geom_vline(xintercept=1-0.0954330296051542, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+g <- "EGF Stimulation + DMSO"
+tmpdf <- data.frame(Group=g,  reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "no EGF + DMSO"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+p3 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) +
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") +
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.0423675453975355, linetype="dotted") + geom_vline(xintercept=1-0.0954330296051542, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 tname <- "ENST00000308394.8"
-p4 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.0356286092384825, color="black") + geom_vline(xintercept=1-0.0695868455633252, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+g <- "EGF Stimulation + DMSO"
+tmpdf <- data.frame(Group=g,  reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "no EGF + DMSO"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+p4 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + 
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") +
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.0356286092384825, linetype="dotted") + geom_vline(xintercept=1-0.0695868455633252, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 tname <- "ENST00000443868.6"
-p5 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="EGF Stimulation + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="EGF Stimulation + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="no EGF + DMSO", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="no EGF + DMSO", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.0107085707561145, color="black") + geom_vline(xintercept=1-0.0180927714007716, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+g <- "EGF Stimulation + DMSO"
+tmpdf <- data.frame(Group=g,  reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "no EGF + DMSO"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+p5 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + 
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") + 
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.0107085707561145, linetype="dotted") + geom_vline(xintercept=1-0.0180927714007716, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
+
+tname <- "ENST00000292433.3"
+g <- "EGF Stimulation + DMSO"
+tmpdf <- data.frame(Group=g,  reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "no EGF + DMSO"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+p6 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) +
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") +
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) +
+	geom_vline(xintercept=1-0.618471, linetype="dotted") + geom_vline(xintercept=1-0.80263, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") +
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 p2 <- ggplot(as.data.frame(res[res$padj < 0.01, ])) + geom_histogram(aes(x=1-IV25)) + theme_cowplot() + labs(x = "reference completeness", title = "Number of DE transcripts that are unreliable \nunder the reference completeness parameter") + 

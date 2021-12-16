@@ -594,7 +594,7 @@ if __name__=="__main__":
 		# read range of optima output
 		TreatmentSampleMap = ReadTreatmentMetadata(metafile)
 		transnames, Expression_pertreatment, Lb_pertreatment, Ub_pertreatment = ProcessUncertaintyMatrix(TreatmentSampleMap, folder + "/MCF10", bound_suffix = "graphsalmon/gs_maxflow_bound.txt")
-		WriteIV_mean(folder + "/MCF10/IValue2_mean_ext.txt", transnames, Expression_pertreatment, Lb_pertreatment, Ub_pertreatment)
+		WriteIV_mean(folder + "/MCF10/IValue_mean_ext.txt", transnames, Expression_pertreatment, Lb_pertreatment, Ub_pertreatment)
 
 		# draw example expression curve with changing proportion of reference transcript abundances
 		# unreliable, unreliable, reliable but contradictary, reliable and consistent, reliable and consistent
@@ -604,4 +604,4 @@ if __name__=="__main__":
 		# new safe ones
 		tnames += ["ENST00000235382.6", "ENST00000292433.3"]
 		indexes = [transnames.index(tname) for tname in tnames]
-		WriteExampleCurve(folder + "/MCF10/IValue2_curve_example.txt", indexes, TreatmentSampleMap, transnames, Expression_pertreatment, Lb_pertreatment, Ub_pertreatment)
+		WriteExampleCurve(folder + "/MCF10/IValue_curve_example.txt", indexes, TreatmentSampleMap, transnames, Expression_pertreatment, Lb_pertreatment, Ub_pertreatment)

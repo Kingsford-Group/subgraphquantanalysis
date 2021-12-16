@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import seaborn
 import pandas as pd
-from matplotlib_venn import venn2
+from matplotlib_venn import venn2, venn2_circles
 
 
 def GetFeature(line, key):
@@ -154,7 +154,7 @@ def plot_percentage_flipped_transcripts(hubmap_path, data_path):
 	fig, axes = plt.subplots(1, 2, figsize = (8,3.5), gridspec_kw={'width_ratios': [1.5, 1]})
 	seaborn.boxplot(data=df, x="lambda", y="Percent transcripts", linewidth=1, ax=axes[0])
 	axes[0].set_xticklabels(["{:.2f}".format(x) for x in np.arange(0, 1.01, 0.1)] + ["bootstrapping"], rotation=30)
-	axes[0].set_xlabel(r'\lambda')
+	axes[0].set_xlabel(r'$\lambda$')
 	# venn diagram to compare the overlapping flipped isoforms under lambda = 0.9 and bootstrapping
 	bootstrap_map = read_bootstrap_map(folders[5] + "/quant_bootstraps.tsv")
 	lp_exp_bounds = read_both_bounds_without_normalization(folders[5] + "/graphsalmon/salmon_lp_bound.txt")
@@ -164,6 +164,7 @@ def plot_percentage_flipped_transcripts(hubmap_path, data_path):
 	trans_list_bootstrap = set(count_isoforms_with_permuted_ranking_bootstrap(bootstrap_map, GeneTransMap))
 	plt.rcParams.update({'font.size': 12, 'text.usetex': True})
 	v = venn2(subsets = {'10':len(trans_list_bound-trans_list_bootstrap), '01':len(trans_list_bootstrap-trans_list_bound), '11':len(trans_list_bound & trans_list_bootstrap)}, set_labels=('', ''), ax=axes[1])
+	venn2_circles(subsets = (len(trans_list_bound-trans_list_bootstrap), len(trans_list_bootstrap-trans_list_bound), len(trans_list_bound & trans_list_bootstrap)), linewidth=1, ax=axes[1]);
 	v.get_patch_by_id('10').set_color('yellow')
 	v.get_patch_by_id('01').set_color('red')
 	v.get_patch_by_id('11').set_color('orange')
@@ -183,4 +184,4 @@ if __name__ == "__main__":
 	else:
 		hubmap_path = sys.argv[1]
 		data_path = sys.argv[2]
-		plot_percentage_flipped_transcripts()
+		plot_percentage_flipped_transcripts(hubmap_path, data_path)

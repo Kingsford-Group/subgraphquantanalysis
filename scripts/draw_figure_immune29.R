@@ -67,38 +67,68 @@ df <- data.frame(Name=rep(t$Name, 2), Group=rep(t$Group, 2), Sample=rep(t$Sample
 large_font <- 18
 
 tname <- "ENST00000258412.7"
-p1 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Effector memory CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Naive CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.04499289308663804, color="black") + geom_vline(xintercept=1-0.04687254015675888, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+# data frame
+g <- "Effector memory CD8 T cells"
+tmpdf <- data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "Naive CD8 T cells"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+# plot
+p1 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + 
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") + 
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.04499289308663804, linetype="dotted") + geom_vline(xintercept=1-0.04687254015675888, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 tname <- "ENST00000252725.9"
-p2 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Effector memory CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Naive CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.03342894511714156, color="black") + geom_vline(xintercept=1-0.08858369915708197, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+# data frame
+g <- "Effector memory CD8 T cells"
+tmpdf <- data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "Naive CD8 T cells"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+# plot
+p2 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + 
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") + 
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.03342894511714156, linetype="dotted") + geom_vline(xintercept=1-0.08858369915708197, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 tname <- "ENST00000619423.4"
-p3 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Effector memory CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Naive CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.27387597150657944, color="black") + geom_vline(xintercept=1-0.5877837534929233, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+# data frame
+g <- "Effector memory CD8 T cells"
+tmpdf <- data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "Naive CD8 T cells"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+# plot
+p3 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + 
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") + 
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.27387597150657944, linetype="dotted") + geom_vline(xintercept=1-0.5877837534929233, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 tname <- "ENST00000435064.5"
-p4 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Effector memory CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Naive CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.5312576093476583, color="black") + geom_vline(xintercept=1-0.6897569071633847, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+# data Frame
+g <- "Effector memory CD8 T cells"
+tmpdf <- data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "Naive CD8 T cells"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+# plot
+p4 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + 
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") + 
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.5312576093476583, linetype="dotted") + geom_vline(xintercept=1-0.6897569071633847, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 tname <- "ENST00000371733.7"
-p5 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), color=Group, linetype=Type), size=1.2) + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Effector memory CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Effector memory CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#F8766D") + 
-	geom_ribbon(data=data.frame(reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group=="Naive CD8 T cells", "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group=="Naive CD8 T cells", "Expression"]), aes(x=1-reference_proportion, ymin=lb, ymax=ub), alpha=0.2, fill="#00BFC4") + 
-	geom_vline(xintercept=1-0.5755250675766428, color="black") + geom_vline(xintercept=1-0.8502603740959019, color="red") + theme_cowplot() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
+# data frame
+g <- "Effector memory CD8 T cells"
+tmpdf <- data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"])
+g <- "Naive CD8 T cells"
+tmpdf <- rbind(tmpdf, data.frame(Group=g, reference_proportion=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "reference_proportion"], lb=df[df$Name == tname & df$Sample == "Mean" & df$Type=="lower bound" & df$Group==g, "Expression"], ub=df[df$Name == tname & df$Sample == "Mean" & df$Type=="upper bound" & df$Group==g, "Expression"]) )
+# plot
+p5 <- ggplot(df[df$Name == tname & df$Sample == "Mean", ]) + 
+	geom_ribbon_pattern(data=tmpdf, aes(x=1-reference_proportion, ymin=lb, ymax=ub, pattern=Group), alpha=0.5, fill='white', color="white") + 
+	geom_line(aes(x=1-reference_proportion, y=Expression, group=interaction(Group, Sample, Type), linetype=Type), size=1.2) + 
+	geom_vline(xintercept=1-0.5755250675766428, linetype="dotted") + geom_vline(xintercept=1-0.8502603740959019, linetype="dotdash") + theme_bw() + labs(title = paste0("Ranges of optima of ", tname, sep=""), x = "reference completeness", y = "normalized abundance") + 
 	theme(legend.title=element_blank()) + theme(axis.text.x = element_text(size = large_font), axis.title.x = element_text(size = large_font), axis.text.y = element_text(size = large_font), axis.title.y = element_text(size = large_font), legend.text=element_text(size=large_font))
 
 p6 <- ggplot(as.data.frame(res[res$padj < 0.01, ])) + geom_histogram(aes(x=1-IV25)) + theme_cowplot() + labs(x = "reference completeness", title = "Number of DE transcripts that are unreliable \nunder the reference completeness parameter") + 
